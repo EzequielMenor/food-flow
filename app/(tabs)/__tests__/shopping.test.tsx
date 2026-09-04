@@ -50,7 +50,7 @@ describe('ShoppingScreen (app/(tabs)/shopping.tsx)', () => {
 
     await waitFor(() => {
       expect(firstCheckbox.props.accessibilityState.checked).toBe(true);
-      expect(getByText(/1 \/ \d+ comprados/)).toBeTruthy();
+      expect(getByText(/1 de \d+ comprados/)).toBeTruthy();
     });
   });
 });

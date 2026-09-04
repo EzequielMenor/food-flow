@@ -20,7 +20,13 @@ import {
   type DayRecordSummary,
 } from '@/infrastructure/dayRepository';
 import { CalendarGrid } from '@/presentation/components/progress/CalendarGrid';
-import { borderRadius, colors, spacing, typography } from '@/presentation/theme/tokens';
+import {
+  borderRadius,
+  spacing,
+  typography,
+  useTheme,
+  type ThemeColors,
+} from '@/presentation/theme';
 
 function formatMonthTitle(date: Date): string {
   try {
@@ -32,6 +38,9 @@ function formatMonthTitle(date: Date): string {
 }
 
 export default function ProgressScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const [currentDate] = useState<Date>(() => new Date());
   const [summaries, setSummaries] = useState<readonly DayRecordSummary[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -209,147 +218,159 @@ export default function ProgressScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xxxl,
-  },
-  header: {
-    marginTop: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  screenTitle: {
-    ...typography.titleLarge,
-    color: colors.textPrimary,
-  },
-  screenSubtitle: {
-    ...typography.bodySmall,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  kpiRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginBottom: spacing.sm,
-  },
-  kpiCard: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  kpiLabel: {
-    ...typography.caption,
-    color: colors.textMuted,
-    fontWeight: '600',
-    marginBottom: spacing.xs,
-  },
-  kpiValue: {
-    ...typography.titleLarge,
-    fontSize: 28,
-    color: colors.textPrimary,
-  },
-  kpiValueHighlight: {
-    ...typography.titleLarge,
-    fontSize: 28,
-    color: colors.primary,
-  },
-  kpiSub: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  summaryBanner: {
-    backgroundColor: colors.surfaceSubtle,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  summaryBannerTitle: {
-    ...typography.bodySmall,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  summaryBannerCount: {
-    ...typography.labelBold,
-    color: colors.textPrimary,
-  },
-  calendarSection: {
-    marginBottom: spacing.md,
-  },
-  calendarHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-    paddingHorizontal: spacing.xs,
-  },
-  calendarTitle: {
-    ...typography.titleSmall,
-    color: colors.textPrimary,
-  },
-  legendRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  legendDot: {
-    width: 8,
-    height: 8,
-    borderRadius: borderRadius.full,
-  },
-  legendDotComplete: {
-    backgroundColor: colors.primary,
-  },
-  legendDotPartial: {
-    backgroundColor: '#D97706',
-  },
-  legendText: {
-    ...typography.caption,
-    color: colors.textSecondary,
-  },
-  loadingContainer: {
-    paddingVertical: spacing.xxxl,
-    alignItems: 'center',
-  },
-  errorCard: {
-    backgroundColor: colors.errorLight,
-    padding: spacing.sm,
-    borderRadius: borderRadius.md,
-    marginBottom: spacing.md,
-  },
-  errorText: {
-    ...typography.caption,
-    color: colors.error,
-  },
-  coachingCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  coachingTitle: {
-    ...typography.labelBold,
-    color: colors.textPrimary,
-    marginBottom: 4,
-  },
-  coachingText: {
-    ...typography.bodySmall,
-    color: colors.textSecondary,
-    lineHeight: 18,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    scrollContent: {
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.xxxl,
+    },
+    header: {
+      marginTop: spacing.sm,
+      marginBottom: spacing.md,
+    },
+    screenTitle: {
+      ...typography.titleLarge,
+      color: colors.textPrimary,
+    },
+    screenSubtitle: {
+      ...typography.bodySmall,
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+    },
+    kpiRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+      flexWrap: 'wrap',
+      marginBottom: spacing.sm,
+    },
+    kpiCard: {
+      flex: 1,
+      minWidth: 140,
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.xl,
+      padding: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    kpiLabel: {
+      ...typography.caption,
+      color: colors.textMuted,
+      fontWeight: '600',
+      marginBottom: spacing.xs,
+    },
+    kpiValue: {
+      ...typography.titleLarge,
+      fontSize: 28,
+      color: colors.textPrimary,
+    },
+    kpiValueHighlight: {
+      ...typography.titleLarge,
+      fontSize: 28,
+      color: colors.primary,
+    },
+    kpiSub: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    summaryBanner: {
+      backgroundColor: colors.surfaceSubtle,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: spacing.xs,
+      marginBottom: spacing.md,
+    },
+    summaryBannerTitle: {
+      ...typography.bodySmall,
+      color: colors.textSecondary,
+      fontWeight: '500',
+      flex: 1,
+      marginRight: spacing.sm,
+    },
+    summaryBannerCount: {
+      ...typography.labelBold,
+      color: colors.textPrimary,
+      flexShrink: 0,
+    },
+    calendarSection: {
+      marginBottom: spacing.md,
+    },
+    calendarHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: spacing.xs,
+      marginBottom: spacing.sm,
+      paddingHorizontal: spacing.xs,
+    },
+    calendarTitle: {
+      ...typography.titleSmall,
+      color: colors.textPrimary,
+    },
+    legendRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+      flexWrap: 'wrap',
+    },
+    legendItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    legendDot: {
+      width: 8,
+      height: 8,
+      borderRadius: borderRadius.full,
+    },
+    legendDotComplete: {
+      backgroundColor: colors.primary,
+    },
+    legendDotPartial: {
+      backgroundColor: colors.warning,
+    },
+    legendText: {
+      ...typography.caption,
+      color: colors.textSecondary,
+    },
+    loadingContainer: {
+      paddingVertical: spacing.xxxl,
+      alignItems: 'center',
+    },
+    errorCard: {
+      backgroundColor: colors.errorLight,
+      padding: spacing.sm,
+      borderRadius: borderRadius.md,
+      marginBottom: spacing.md,
+    },
+    errorText: {
+      ...typography.caption,
+      color: colors.error,
+    },
+    coachingCard: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.xl,
+      padding: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    coachingTitle: {
+      ...typography.labelBold,
+      color: colors.textPrimary,
+      marginBottom: 4,
+    },
+    coachingText: {
+      ...typography.bodySmall,
+      color: colors.textSecondary,
+      lineHeight: 18,
+    },
+  });
+

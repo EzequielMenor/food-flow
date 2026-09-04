@@ -32,7 +32,7 @@ describe('TodayScreen (app/(tabs)/index.tsx)', () => {
     expect(getByText('Descanso')).toBeTruthy();
 
     // Comprobamos que hay botones de confirmación
-    const buttons = getAllByText('[ He comido esto ]');
+    const buttons = getAllByText('He comido esto');
     expect(buttons.length).toBeGreaterThan(0);
   });
 
@@ -40,10 +40,10 @@ describe('TodayScreen (app/(tabs)/index.tsx)', () => {
     const { getAllByText, getByText } = render(<TodayScreen />);
 
     await waitFor(() => {
-      expect(getAllByText('[ He comido esto ]').length).toBeGreaterThan(0);
+      expect(getAllByText('He comido esto').length).toBeGreaterThan(0);
     });
 
-    const firstMealButton = getAllByText('[ He comido esto ]')[0]!;
+    const firstMealButton = getAllByText('He comido esto')[0]!;
     fireEvent.press(firstMealButton);
 
     await waitFor(() => {

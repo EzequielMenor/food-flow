@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   RefreshControl,
@@ -7,6 +7,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { parseDateKey, type FoodItem } from '@/application/dailyFlow';
 import type { MomentId } from '@/domain/nutrition/types';
@@ -14,7 +15,13 @@ import { DayTypeSelector } from '@/presentation/components/daily/DayTypeSelector
 import { MealCard } from '@/presentation/components/daily/MealCard';
 import { SubstitutionModal } from '@/presentation/components/meal/SubstitutionModal';
 import { useDailyFlow } from '@/presentation/hooks/useDailyFlow';
-import { borderRadius, colors, spacing, typography } from '@/presentation/theme/tokens';
+import {
+  borderRadius,
+  spacing,
+  typography,
+  useTheme,
+  type ThemeColors,
+} from '@/presentation/theme';
 
 function formatDisplayDate(dateKey: string): string {
   try {
@@ -31,6 +38,10 @@ function formatDisplayDate(dateKey: string): string {
 }
 
 export default function TodayScreen() {
+  const router = useRouter();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const {
     dateKey,
     state,
@@ -83,7 +94,7 @@ export default function TodayScreen() {
           <View style={styles.progressTextRow}>
             <Text style={styles.progressLabel}>Progreso del día</Text>
             <Text style={styles.progressCounter}>
-              {completedMealsCount} de {totalMealsCount} comidas
+              {completedMealsCount} de {totalMealsCount} comidas completadas
             </Text>
           </View>
 
@@ -124,6 +135,12 @@ export default function TodayScreen() {
                 meal={meal}
                 isCompleted={Boolean(state.completed[meal.momentId])}
                 onToggleCompleted={() => void toggleMeal(meal.momentId)}
+                onPressCard={() =>
+                  router.push({
+                    pathname: '/meal/[id]',
+                    params: { id: meal.momentId.toLowerCase() },
+                  })
+                }
                 onOpenSubstitution={(item) =>
                   setActiveSubstitution({
                     item,
@@ -152,83 +169,88 @@ export default function TodayScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xxxl,
-  },
-  headerContainer: {
-    marginTop: spacing.sm,
-    marginBottom: spacing.xs,
-  },
-  dateSubtitle: {
-    ...typography.caption,
-    color: colors.textMuted,
-    textTransform: 'capitalize',
-  },
-  screenTitle: {
-    ...typography.titleLarge,
-    color: colors.textPrimary,
-  },
-  progressCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    marginVertical: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  progressTextRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.xs,
-  },
-  progressLabel: {
-    ...typography.labelBold,
-    color: colors.textPrimary,
-  },
-  progressCounter: {
-    ...typography.bodySmall,
-    color: colors.textSecondary,
-    fontWeight: '600',
-  },
-  progressBarBackground: {
-    height: 8,
-    backgroundColor: colors.surfaceSubtle,
-    borderRadius: borderRadius.full,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.full,
-  },
-  allDoneBanner: {
-    ...typography.caption,
-    color: colors.successDark,
-    fontWeight: '600',
-    marginTop: spacing.xs,
-  },
-  errorCard: {
-    backgroundColor: colors.errorLight,
-    padding: spacing.sm,
-    borderRadius: borderRadius.md,
-    marginVertical: spacing.xs,
-  },
-  errorText: {
-    ...typography.caption,
-    color: colors.error,
-  },
-  loadingContainer: {
-    paddingVertical: spacing.xxxl,
-    alignItems: 'center',
-  },
-  mealsList: {
-    marginTop: spacing.xs,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    scrollContent: {
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.xxxl,
+    },
+    headerContainer: {
+      marginTop: spacing.sm,
+      marginBottom: spacing.xs,
+    },
+    dateSubtitle: {
+      ...typography.caption,
+      color: colors.textMuted,
+      textTransform: 'capitalize',
+    },
+    screenTitle: {
+      ...typography.titleLarge,
+      color: colors.textPrimary,
+    },
+    progressCard: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      marginVertical: spacing.sm,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    progressTextRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: spacing.xs,
+      marginBottom: spacing.xs,
+    },
+    progressLabel: {
+      ...typography.labelBold,
+      color: colors.textPrimary,
+      flexShrink: 1,
+    },
+    progressCounter: {
+      ...typography.bodySmall,
+      color: colors.textSecondary,
+      fontWeight: '600',
+    },
+    progressBarBackground: {
+      height: 8,
+      backgroundColor: colors.surfaceSubtle,
+      borderRadius: borderRadius.full,
+      overflow: 'hidden',
+    },
+    progressBarFill: {
+      height: '100%',
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.full,
+    },
+    allDoneBanner: {
+      ...typography.caption,
+      color: colors.successDark,
+      fontWeight: '600',
+      marginTop: spacing.xs,
+    },
+    errorCard: {
+      backgroundColor: colors.errorLight,
+      padding: spacing.sm,
+      borderRadius: borderRadius.md,
+      marginVertical: spacing.xs,
+    },
+    errorText: {
+      ...typography.caption,
+      color: colors.error,
+    },
+    loadingContainer: {
+      paddingVertical: spacing.xxxl,
+      alignItems: 'center',
+    },
+    mealsList: {
+      marginTop: spacing.xs,
+    },
+  });
+

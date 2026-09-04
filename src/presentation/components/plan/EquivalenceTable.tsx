@@ -3,12 +3,19 @@
  * Muestra el catálogo 1R con el rango de aguacate 50–55 g y reglas de deducción.
  */
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { FOODS } from '@/data/nutrition/canonicalFoods';
 import { formatQuantity } from '@/domain/nutrition/quantities';
 import type { FoodGroupId } from '@/domain/nutrition/types';
-import { borderRadius, colors, spacing, touchTarget, typography } from '@/presentation/theme/tokens';
+import {
+  borderRadius,
+  spacing,
+  touchTarget,
+  typography,
+  useTheme,
+  type ThemeColors,
+} from '@/presentation/theme';
 
 const GROUPS: readonly { id: FoodGroupId; label: string }[] = [
   { id: 'PROTEIN', label: 'Proteína' },
@@ -17,6 +24,8 @@ const GROUPS: readonly { id: FoodGroupId; label: string }[] = [
 ];
 
 export const EquivalenceTable: React.FC = () => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [selectedGroup, setSelectedGroup] = useState<FoodGroupId>('PROTEIN');
 
   const filteredFoods = FOODS.filter((f) => f.group === selectedGroup);
@@ -101,29 +110,36 @@ export const EquivalenceTable: React.FC = () => {
         </View>
       )}
 
-      {/* Cuadro comparativo Entreno vs Descanso */}
+      {/* Cuadro de estructura: Entreno y Descanso */}
       <View style={styles.structureCard}>
         <Text style={styles.structureTitle}>Estructura Diaria de Raciones</Text>
-        <View style={styles.structureRow}>
-          <View style={styles.structureCol}>
+
+        <View style={styles.structureBlock}>
+          <View style={styles.structureBlockHeader}>
             <Text style={styles.structureColHeader}>Entrenamiento (5 comidas)</Text>
             <Text style={styles.structureMacros}>16P · 17C · 5G</Text>
-            <Text style={styles.structureDetail}>Pre: 1C + 1G</Text>
-            <Text style={styles.structureDetail}>Almuerzo: 5P + 4C + 1G</Text>
-            <Text style={styles.structureDetail}>Comida: 4P + 4C + 1G</Text>
-            <Text style={styles.structureDetail}>Merienda: 2P + 4C + 1G</Text>
-            <Text style={styles.structureDetail}>Cena: 4P + 4C + 1G</Text>
           </View>
+          <View style={styles.structureDetailsList}>
+            <Text style={styles.structureDetail}>• Pre: 1C + 1G</Text>
+            <Text style={styles.structureDetail}>• Almuerzo: 5P + 4C + 1G</Text>
+            <Text style={styles.structureDetail}>• Comida: 4P + 4C + 1G</Text>
+            <Text style={styles.structureDetail}>• Merienda: 2P + 4C + 1G</Text>
+            <Text style={styles.structureDetail}>• Cena: 4P + 4C + 1G</Text>
+          </View>
+        </View>
 
-          <View style={styles.dividerVertical} />
+        <View style={styles.structureDivider} />
 
-          <View style={styles.structureCol}>
+        <View style={styles.structureBlock}>
+          <View style={styles.structureBlockHeader}>
             <Text style={styles.structureColHeader}>Descanso (4 comidas)</Text>
             <Text style={styles.structureMacros}>16P · 11C · 4G</Text>
-            <Text style={styles.structureDetail}>Almuerzo: 5P + 3C + 1G</Text>
-            <Text style={styles.structureDetail}>Comida: 4P + 4C + 1G</Text>
-            <Text style={styles.structureDetail}>Merienda: 2P + 2C + 1G</Text>
-            <Text style={styles.structureDetail}>Cena: 4P + 2C + 1G</Text>
+          </View>
+          <View style={styles.structureDetailsList}>
+            <Text style={styles.structureDetail}>• Almuerzo: 5P + 3C + 1G</Text>
+            <Text style={styles.structureDetail}>• Comida: 4P + 4C + 1G</Text>
+            <Text style={styles.structureDetail}>• Merienda: 2P + 2C + 1G</Text>
+            <Text style={styles.structureDetail}>• Cena: 4P + 2C + 1G</Text>
           </View>
         </View>
       </View>
@@ -131,156 +147,171 @@ export const EquivalenceTable: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    marginVertical: spacing.sm,
-  },
-  tabGroup: {
-    flexDirection: 'row',
-    backgroundColor: colors.surfaceSubtle,
-    borderRadius: borderRadius.lg,
-    padding: spacing.xs,
-    marginBottom: spacing.md,
-  },
-  tab: {
-    flex: 1,
-    minHeight: touchTarget.minHeight,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.sm,
-  },
-  tabSelected: {
-    backgroundColor: colors.surface,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-  },
-  tabPressed: {
-    opacity: 0.8,
-  },
-  tabText: {
-    ...typography.labelBold,
-    color: colors.textSecondary,
-  },
-  tabTextSelected: {
-    color: colors.primary,
-  },
-  tableCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: spacing.md,
-  },
-  tableHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingBottom: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    marginBottom: spacing.xs,
-  },
-  tableHeaderLabel: {
-    ...typography.caption,
-    color: colors.textMuted,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-  },
-  tableHeaderValue: {
-    ...typography.caption,
-    color: colors.textMuted,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-  },
-  tableRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 0.5,
-    borderBottomColor: colors.border,
-  },
-  foodInfo: {
-    flex: 1,
-    marginRight: spacing.sm,
-  },
-  foodName: {
-    ...typography.bodyMedium,
-    color: colors.textPrimary,
-    fontWeight: '500',
-  },
-  foodNote: {
-    ...typography.caption,
-    color: colors.textMuted,
-  },
-  deductionTag: {
-    ...typography.caption,
-    color: '#92400E',
-    marginTop: 2,
-  },
-  foodQuantity: {
-    ...typography.labelBold,
-    color: colors.textPrimary,
-  },
-  avocadoHighlight: {
-    color: colors.primary,
-    fontWeight: '700',
-  },
-  calloutCard: {
-    backgroundColor: colors.primaryLight,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  calloutTitle: {
-    ...typography.labelBold,
-    color: colors.primaryDark,
-    marginBottom: 2,
-  },
-  calloutText: {
-    ...typography.bodySmall,
-    color: colors.textPrimary,
-  },
-  structureCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  structureTitle: {
-    ...typography.titleSmall,
-    color: colors.textPrimary,
-    marginBottom: spacing.sm,
-  },
-  structureRow: {
-    flexDirection: 'row',
-  },
-  structureCol: {
-    flex: 1,
-  },
-  structureColHeader: {
-    ...typography.labelBold,
-    color: colors.textPrimary,
-    marginBottom: 2,
-  },
-  structureMacros: {
-    ...typography.caption,
-    color: colors.primary,
-    fontWeight: '700',
-    marginBottom: spacing.xs,
-  },
-  structureDetail: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginBottom: 2,
-  },
-  dividerVertical: {
-    width: 1,
-    backgroundColor: colors.border,
-    marginHorizontal: spacing.sm,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      marginVertical: spacing.sm,
+    },
+    tabGroup: {
+      flexDirection: 'row',
+      backgroundColor: colors.surfaceSubtle,
+      borderRadius: borderRadius.lg,
+      padding: spacing.xs,
+      marginBottom: spacing.md,
+    },
+    tab: {
+      flex: 1,
+      minHeight: touchTarget.minHeight,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: borderRadius.md,
+      paddingVertical: spacing.sm,
+    },
+    tabSelected: {
+      backgroundColor: colors.surface,
+      elevation: 2,
+      shadowColor: '#000',
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+    },
+    tabPressed: {
+      opacity: 0.8,
+    },
+    tabText: {
+      ...typography.labelBold,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      flexShrink: 1,
+    },
+    tabTextSelected: {
+      color: colors.primary,
+    },
+    tableCard: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.xl,
+      padding: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginBottom: spacing.md,
+    },
+    tableHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingBottom: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      marginBottom: spacing.xs,
+    },
+    tableHeaderLabel: {
+      ...typography.caption,
+      color: colors.textMuted,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+    },
+    tableHeaderValue: {
+      ...typography.caption,
+      color: colors.textMuted,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+    },
+    tableRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      borderBottomWidth: 0.5,
+      borderBottomColor: colors.border,
+      flexWrap: 'wrap',
+      gap: spacing.xs,
+    },
+    foodInfo: {
+      flex: 1,
+      minWidth: 140,
+      marginRight: spacing.sm,
+    },
+    foodName: {
+      ...typography.bodyMedium,
+      color: colors.textPrimary,
+      fontWeight: '500',
+    },
+    foodNote: {
+      ...typography.caption,
+      color: colors.textMuted,
+    },
+    deductionTag: {
+      ...typography.caption,
+      color: colors.warningDark,
+      marginTop: 2,
+    },
+    foodQuantity: {
+      ...typography.labelBold,
+      color: colors.textPrimary,
+      flexShrink: 0,
+    },
+    avocadoHighlight: {
+      color: colors.primary,
+      fontWeight: '700',
+    },
+    calloutCard: {
+      backgroundColor: colors.primaryLight,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+    },
+    calloutTitle: {
+      ...typography.labelBold,
+      color: colors.primaryDark,
+      marginBottom: 2,
+    },
+    calloutText: {
+      ...typography.bodySmall,
+      color: colors.textPrimary,
+    },
+    structureCard: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    structureTitle: {
+      ...typography.titleSmall,
+      color: colors.textPrimary,
+      marginBottom: spacing.md,
+    },
+    structureBlock: {
+      marginBottom: spacing.xs,
+    },
+    structureBlockHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: spacing.xs,
+      marginBottom: spacing.xs,
+    },
+    structureColHeader: {
+      ...typography.labelBold,
+      color: colors.textPrimary,
+    },
+    structureMacros: {
+      ...typography.caption,
+      color: colors.primary,
+      fontWeight: '700',
+    },
+    structureDetailsList: {
+      gap: 3,
+      paddingLeft: spacing.xs,
+    },
+    structureDetail: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      lineHeight: 18,
+    },
+    structureDivider: {
+      height: 1,
+      backgroundColor: colors.border,
+      marginVertical: spacing.md,
+    },
+  });
+

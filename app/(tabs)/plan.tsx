@@ -2,7 +2,7 @@
  * Pantalla "Plan": consulta clínica de equivalencias, 8 recetas y 6 salsas (M5).
  */
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -16,11 +16,20 @@ import { SAUCES, SAUCE_RULE_OF_THUMB } from '@/data/recipes/sauces';
 import { EquivalenceTable } from '@/presentation/components/plan/EquivalenceTable';
 import { RecipeCard } from '@/presentation/components/plan/RecipeCard';
 import { SauceCard } from '@/presentation/components/plan/SauceCard';
-import { borderRadius, colors, spacing, touchTarget, typography } from '@/presentation/theme/tokens';
+import {
+  borderRadius,
+  spacing,
+  touchTarget,
+  typography,
+  useTheme,
+  type ThemeColors,
+} from '@/presentation/theme';
 
 type PlanSection = 'EQUIVALENCES' | 'RECIPES' | 'SAUCES';
 
 export default function PlanScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [activeSection, setActiveSection] = useState<PlanSection>('EQUIVALENCES');
 
   return (
@@ -129,81 +138,86 @@ export default function PlanScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xxxl,
-  },
-  header: {
-    marginTop: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  screenTitle: {
-    ...typography.titleLarge,
-    color: colors.textPrimary,
-  },
-  screenSubtitle: {
-    ...typography.bodySmall,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  segmentedControl: {
-    flexDirection: 'row',
-    backgroundColor: colors.surfaceSubtle,
-    borderRadius: borderRadius.lg,
-    padding: spacing.xs,
-    marginBottom: spacing.md,
-  },
-  segmentBtn: {
-    flex: 1,
-    minHeight: touchTarget.minHeight,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.sm,
-  },
-  segmentBtnActive: {
-    backgroundColor: colors.surface,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-  },
-  segmentPressed: {
-    opacity: 0.8,
-  },
-  segmentText: {
-    ...typography.labelBold,
-    color: colors.textSecondary,
-  },
-  segmentTextActive: {
-    color: colors.primary,
-  },
-  listContainer: {
-    marginVertical: spacing.xs,
-  },
-  sectionIntro: {
-    ...typography.bodySmall,
-    color: colors.textSecondary,
-    marginBottom: spacing.sm,
-  },
-  ruleCard: {
-    backgroundColor: colors.primaryLight,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  ruleTitle: {
-    ...typography.labelBold,
-    color: colors.primaryDark,
-    marginBottom: 2,
-  },
-  ruleText: {
-    ...typography.bodySmall,
-    color: colors.textPrimary,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    scrollContent: {
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.xxxl,
+    },
+    header: {
+      marginTop: spacing.sm,
+      marginBottom: spacing.md,
+    },
+    screenTitle: {
+      ...typography.titleLarge,
+      color: colors.textPrimary,
+    },
+    screenSubtitle: {
+      ...typography.bodySmall,
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+    },
+    segmentedControl: {
+      flexDirection: 'row',
+      backgroundColor: colors.surfaceSubtle,
+      borderRadius: borderRadius.lg,
+      padding: spacing.xs,
+      marginBottom: spacing.md,
+    },
+    segmentBtn: {
+      flex: 1,
+      minHeight: touchTarget.minHeight,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: borderRadius.md,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: 2,
+    },
+    segmentBtnActive: {
+      backgroundColor: colors.surface,
+      elevation: 2,
+      shadowColor: '#000',
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+    },
+    segmentPressed: {
+      opacity: 0.8,
+    },
+    segmentText: {
+      ...typography.labelBold,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      flexShrink: 1,
+    },
+    segmentTextActive: {
+      color: colors.primary,
+    },
+    listContainer: {
+      marginVertical: spacing.xs,
+    },
+    sectionIntro: {
+      ...typography.bodySmall,
+      color: colors.textSecondary,
+      marginBottom: spacing.sm,
+    },
+    ruleCard: {
+      backgroundColor: colors.primaryLight,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+    },
+    ruleTitle: {
+      ...typography.labelBold,
+      color: colors.primaryDark,
+      marginBottom: 2,
+    },
+    ruleText: {
+      ...typography.bodySmall,
+      color: colors.textPrimary,
+    },
+  });
+

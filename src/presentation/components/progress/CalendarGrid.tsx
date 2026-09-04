@@ -3,11 +3,17 @@
  * Representa visualmente los días cumplidos al 100%, parciales o vacíos.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { DayRecordSummary } from '@/infrastructure/dayRepository';
 import { dateKeyOf } from '@/application/dailyFlow';
-import { borderRadius, colors, spacing, typography } from '@/presentation/theme/tokens';
+import {
+  borderRadius,
+  spacing,
+  typography,
+  useTheme,
+  type ThemeColors,
+} from '@/presentation/theme';
 
 export interface CalendarGridProps {
   readonly month: Date;
@@ -22,6 +28,9 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   daySummaries,
   onSelectDate,
 }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const summaryByDate = React.useMemo(() => {
     const map = new Map<string, DayRecordSummary>();
     for (const s of daySummaries) {
@@ -56,7 +65,11 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
       {/* Cabecera de días de la semana */}
       <View style={styles.weekdayRow}>
         {WEEKDAY_HEADERS.map((dayLabel, idx) => (
-          <Text key={`header-${idx}`} style={styles.weekdayHeader}>
+          <Text
+            key={`header-${idx}`}
+            maxFontSizeMultiplier={1.3}
+            style={styles.weekdayHeader}
+          >
             {dayLabel}
           </Text>
         ))}
@@ -99,6 +112,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
               ]}
             >
               <Text
+                maxFontSizeMultiplier={1.3}
                 style={[
                   styles.dayNumberText,
                   isToday && styles.todayText,
@@ -107,7 +121,11 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
               >
                 {cell.dayNumber}
               </Text>
-              {isComplete && <Text style={styles.checkMark}>✓</Text>}
+              {isComplete && (
+                <Text maxFontSizeMultiplier={1.3} style={styles.checkMark}>
+                  ✓
+                </Text>
+              )}
               {isPartial && <View style={styles.partialDot} />}
             </Pressable>
           );
@@ -117,82 +135,85 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  weekdayRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingBottom: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    marginBottom: spacing.xs,
-  },
-  weekdayHeader: {
-    ...typography.caption,
-    color: colors.textMuted,
-    fontWeight: '700',
-    textAlign: 'center',
-    width: 40,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  emptyCell: {
-    width: `${100 / 7}%`,
-    height: 44,
-  },
-  dayCell: {
-    width: `${100 / 7}%`,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: borderRadius.md,
-    marginVertical: 2,
-  },
-  cellPressed: {
-    opacity: 0.7,
-  },
-  todayCell: {
-    borderWidth: 1.5,
-    borderColor: colors.training,
-  },
-  completeCell: {
-    backgroundColor: colors.successLight,
-  },
-  partialCell: {
-    backgroundColor: colors.warningLight,
-  },
-  dayNumberText: {
-    ...typography.caption,
-    color: colors.textPrimary,
-    fontWeight: '500',
-  },
-  todayText: {
-    fontWeight: '700',
-    color: colors.training,
-  },
-  completeText: {
-    color: colors.successDark,
-    fontWeight: '700',
-  },
-  checkMark: {
-    fontSize: 9,
-    color: colors.successDark,
-    fontWeight: '900',
-    lineHeight: 10,
-  },
-  partialDot: {
-    width: 4,
-    height: 4,
-    borderRadius: borderRadius.full,
-    backgroundColor: '#D97706',
-    marginTop: 2,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    weekdayRow: {
+      flexDirection: 'row',
+      width: '100%',
+      paddingBottom: spacing.xs,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      marginBottom: spacing.xs,
+    },
+    weekdayHeader: {
+      ...typography.caption,
+      color: colors.textMuted,
+      fontWeight: '700',
+      textAlign: 'center',
+      width: `${100 / 7}%`,
+    },
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      width: '100%',
+    },
+    emptyCell: {
+      width: `${100 / 7}%`,
+      height: 42,
+    },
+    dayCell: {
+      width: `${100 / 7}%`,
+      height: 42,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: borderRadius.sm,
+      marginVertical: 1,
+    },
+    cellPressed: {
+      opacity: 0.7,
+    },
+    todayCell: {
+      borderWidth: 1.5,
+      borderColor: colors.primary,
+    },
+    completeCell: {
+      backgroundColor: colors.successLight,
+    },
+    partialCell: {
+      backgroundColor: colors.warningLight,
+    },
+    dayNumberText: {
+      ...typography.caption,
+      color: colors.textPrimary,
+      fontWeight: '500',
+      fontSize: 12,
+    },
+    todayText: {
+      fontWeight: '700',
+      color: colors.primaryDark,
+    },
+    completeText: {
+      color: colors.successDark,
+      fontWeight: '700',
+    },
+    checkMark: {
+      fontSize: 9,
+      color: colors.successDark,
+      fontWeight: '900',
+      lineHeight: 10,
+    },
+    partialDot: {
+      width: 4,
+      height: 4,
+      borderRadius: borderRadius.full,
+      backgroundColor: colors.warning,
+      marginTop: 2,
+    },
+  });

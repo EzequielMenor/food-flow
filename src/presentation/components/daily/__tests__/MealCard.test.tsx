@@ -22,7 +22,7 @@ describe('MealCard component', () => {
 
     expect(getByText(meal.title)).toBeTruthy();
     expect(getByText('COMIDA')).toBeTruthy();
-    expect(getByText('[ He comido esto ]')).toBeTruthy();
+    expect(getByText('He comido esto')).toBeTruthy();
     expect(getByText('Pendiente')).toBeTruthy();
   });
 

@@ -3,10 +3,17 @@
  * Cambia instantáneamente la estructura entre 5 y 4 comidas (TASK-M2-003).
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { DayType } from '@/domain/nutrition/types';
-import { borderRadius, colors, spacing, touchTarget, typography } from '@/presentation/theme/tokens';
+import {
+  borderRadius,
+  spacing,
+  touchTarget,
+  typography,
+  useTheme,
+  type ThemeColors,
+} from '@/presentation/theme';
 
 export interface DayTypeSelectorProps {
   readonly dayType: DayType;
@@ -21,6 +28,8 @@ export const DayTypeSelector: React.FC<DayTypeSelectorProps> = ({
   onChangeDayType,
   disabled = false,
 }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const isTraining = dayType === 'TRAINING';
 
   return (
@@ -76,67 +85,73 @@ export const DayTypeSelector: React.FC<DayTypeSelectorProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    marginVertical: spacing.sm,
-  },
-  selectorWrapper: {
-    flexDirection: 'row',
-    backgroundColor: colors.surfaceSubtle,
-    borderRadius: borderRadius.lg,
-    padding: spacing.xs,
-  },
-  segment: {
-    flex: 1,
-    minHeight: touchTarget.minHeight,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: borderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  segmentPressed: {
-    opacity: 0.8,
-  },
-  segmentTrainingActive: {
-    backgroundColor: colors.surface,
-    borderWidth: 1.5,
-    borderColor: colors.training,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 1 },
-  },
-  segmentRestActive: {
-    backgroundColor: colors.surface,
-    borderWidth: 1.5,
-    borderColor: colors.rest,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 1 },
-  },
-  segmentLabel: {
-    ...typography.labelBold,
-    color: colors.textSecondary,
-  },
-  segmentLabelActive: {
-    color: colors.textPrimary,
-  },
-  segmentBadge: {
-    ...typography.caption,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-  segmentBadgeActive: {
-    color: colors.textSecondary,
-  },
-  manualNotice: {
-    ...typography.caption,
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.xs,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      marginVertical: spacing.xs,
+    },
+    selectorWrapper: {
+      flexDirection: 'row',
+      backgroundColor: colors.surfaceSubtle,
+      borderRadius: borderRadius.lg,
+      padding: 3,
+    },
+    segment: {
+      flex: 1,
+      minHeight: touchTarget.minHeight,
+      paddingVertical: spacing.xs + 2,
+      paddingHorizontal: spacing.sm,
+      borderRadius: borderRadius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'transparent',
+    },
+    segmentPressed: {
+      opacity: 0.75,
+    },
+    segmentTrainingActive: {
+      backgroundColor: colors.surface,
+      shadowColor: '#000',
+      shadowOpacity: 0.06,
+      shadowRadius: 3,
+      shadowOffset: { width: 0, height: 1 },
+      elevation: 2,
+    },
+    segmentRestActive: {
+      backgroundColor: colors.surface,
+      shadowColor: '#000',
+      shadowOpacity: 0.06,
+      shadowRadius: 3,
+      shadowOffset: { width: 0, height: 1 },
+      elevation: 2,
+    },
+    segmentLabel: {
+      ...typography.labelBold,
+      color: colors.textSecondary,
+      fontSize: 14,
+      textAlign: 'center',
+      flexShrink: 1,
+    },
+    segmentLabelActive: {
+      color: colors.textPrimary,
+      fontWeight: '700',
+    },
+    segmentBadge: {
+      ...typography.caption,
+      color: colors.textMuted,
+      fontSize: 11,
+      marginTop: 1,
+      textAlign: 'center',
+    },
+    segmentBadgeActive: {
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    manualNotice: {
+      ...typography.caption,
+      color: colors.textMuted,
+      textAlign: 'center',
+      marginTop: spacing.xs,
+    },
+  });
+

@@ -5,7 +5,7 @@
  * en tiempo real para preservar las raciones de la pauta.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Modal,
   Pressable,
@@ -14,12 +14,20 @@ import {
   Text,
   View,
 } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import type { FoodItem } from '@/application/dailyFlow';
 import { getFoodsByGroup } from '@/data/nutrition/canonicalFoods';
 import { portionsToQuantity } from '@/domain/nutrition/PortionEngine';
 import { formatQuantity } from '@/domain/nutrition/quantities';
 import type { Food, FoodGroupId } from '@/domain/nutrition/types';
-import { borderRadius, colors, spacing, touchTarget, typography } from '@/presentation/theme/tokens';
+import {
+  borderRadius,
+  spacing,
+  touchTarget,
+  typography,
+  useTheme,
+  type ThemeColors,
+} from '@/presentation/theme';
 
 export interface SubstitutionModalProps {
   readonly visible: boolean;
@@ -42,6 +50,9 @@ export const SubstitutionModal: React.FC<SubstitutionModalProps> = ({
   onClose,
   onSelectAlternative,
 }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   if (!item) {
     return null;
   }
@@ -49,6 +60,11 @@ export const SubstitutionModal: React.FC<SubstitutionModalProps> = ({
   // Regla clínica BR-009: solo alimentos del mismo grupo exacto
   const alternatives = getFoodsByGroup(item.group);
   const groupName = GROUP_LABELS[item.group];
+  const currentQuantityDisplay = formatQuantity({
+    value: item.value,
+    ...(item.maxValue !== undefined ? { maxValue: item.maxValue } : {}),
+    unit: item.unit,
+  });
 
   return (
     <Modal
@@ -67,7 +83,7 @@ export const SubstitutionModal: React.FC<SubstitutionModalProps> = ({
               <Text style={styles.categoryBadge}>{groupName.toUpperCase()}</Text>
               <Text style={styles.title}>Sustituir alimento</Text>
               <Text style={styles.subtitle}>
-                Preservando {item.portions} {item.portions === 1 ? 'ración' : 'raciones'} en {momentLabel ?? 'la comida'}
+                Equivalencia para {momentLabel ?? 'esta comida'}
               </Text>
             </View>
 
@@ -75,18 +91,31 @@ export const SubstitutionModal: React.FC<SubstitutionModalProps> = ({
               accessibilityRole="button"
               accessibilityLabel="Cerrar"
               onPress={onClose}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               style={styles.closeButton}
             >
-              <Text style={styles.closeButtonText}>✕</Text>
+              <Ionicons name="close" size={20} color={colors.textSecondary} />
             </Pressable>
           </View>
 
-          <Text style={styles.currentFoodHint}>
-            Original: <Text style={styles.currentFoodName}>{item.name}</Text>
-          </Text>
+          {/* Bloque: qué alimento hay ahora */}
+          <View style={styles.currentFoodCard}>
+            <View style={styles.currentFoodHeader}>
+              <Text style={styles.currentFoodLabel}>Alimento actual</Text>
+              <Text style={styles.currentFoodQuantity}>{currentQuantityDisplay}</Text>
+            </View>
+            <Text style={styles.currentFoodName}>{item.name}</Text>
+          </View>
 
-          {/* Lista de alternativas del mismo grupo */}
-          <ScrollView style={styles.optionsList} contentContainerStyle={styles.optionsContainer}>
+          {/* Separador de flujo */}
+          <Text style={styles.changeForLabel}>Cambiar por</Text>
+
+          {/* Lista de alternativas del mismo grupo: qué alimento puedo elegir → qué cantidad resulta */}
+          <ScrollView
+            style={styles.optionsList}
+            contentContainerStyle={styles.optionsContainer}
+            showsVerticalScrollIndicator={true}
+          >
             {alternatives.map((candidate: Food) => {
               const isCurrent = candidate.id === item.foodId;
               const calculated = portionsToQuantity(candidate, item.portions);
@@ -141,128 +170,164 @@ export const SubstitutionModal: React.FC<SubstitutionModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-    justifyContent: 'flex-end',
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFill,
-  },
-  modalContent: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: borderRadius.xl,
-    borderTopRightRadius: borderRadius.xl,
-    maxHeight: '80%',
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.xxl,
-    paddingHorizontal: spacing.lg,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: spacing.xs,
-  },
-  headerText: {
-    flex: 1,
-    marginRight: spacing.sm,
-  },
-  categoryBadge: {
-    ...typography.caption,
-    color: colors.training,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  title: {
-    ...typography.titleLarge,
-    color: colors.textPrimary,
-  },
-  subtitle: {
-    ...typography.bodySmall,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  closeButton: {
-    width: touchTarget.minWidth,
-    height: touchTarget.minHeight,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: borderRadius.full,
-    backgroundColor: colors.surfaceSubtle,
-  },
-  closeButtonText: {
-    fontSize: 18,
-    color: colors.textSecondary,
-    fontWeight: '600',
-  },
-  currentFoodHint: {
-    ...typography.bodySmall,
-    color: colors.textMuted,
-    marginBottom: spacing.md,
-  },
-  currentFoodName: {
-    color: colors.textPrimary,
-    fontWeight: '600',
-  },
-  optionsList: {
-    maxHeight: 420,
-  },
-  optionsContainer: {
-    gap: spacing.sm,
-    paddingBottom: spacing.lg,
-  },
-  optionRow: {
-    minHeight: touchTarget.minHeight,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.surfaceSubtle,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-  },
-  optionRowCurrent: {
-    backgroundColor: colors.primaryLight,
-    borderColor: colors.primary,
-  },
-  optionRowPressed: {
-    opacity: 0.8,
-  },
-  optionInfo: {
-    flex: 1,
-    marginRight: spacing.sm,
-  },
-  optionName: {
-    ...typography.bodyMedium,
-    color: colors.textPrimary,
-    fontWeight: '500',
-  },
-  optionNameCurrent: {
-    color: colors.primaryDark,
-    fontWeight: '700',
-  },
-  fatDeductionHint: {
-    ...typography.caption,
-    color: '#92400E',
-    marginTop: 2,
-  },
-  quantityContainer: {
-    alignItems: 'flex-end',
-  },
-  quantityText: {
-    ...typography.labelBold,
-    color: colors.textPrimary,
-  },
-  quantityTextCurrent: {
-    color: colors.primaryDark,
-  },
-  currentTag: {
-    ...typography.caption,
-    color: colors.primaryDark,
-    fontWeight: '700',
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    overlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.55)',
+      justifyContent: 'flex-end',
+    },
+    backdrop: {
+      ...StyleSheet.absoluteFill,
+    },
+    modalContent: {
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: borderRadius.xl,
+      borderTopRightRadius: borderRadius.xl,
+      maxHeight: '85%',
+      paddingTop: spacing.lg,
+      paddingBottom: spacing.xxxl,
+      paddingHorizontal: spacing.lg,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: spacing.xs,
+    },
+    headerText: {
+      flex: 1,
+      marginRight: spacing.sm,
+    },
+    categoryBadge: {
+      ...typography.caption,
+      color: colors.training,
+      fontWeight: '700',
+      letterSpacing: 0.5,
+    },
+    title: {
+      ...typography.titleLarge,
+      color: colors.textPrimary,
+    },
+    subtitle: {
+      ...typography.bodySmall,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    closeButton: {
+      width: 36,
+      height: 36,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: borderRadius.full,
+      backgroundColor: colors.surfaceSubtle,
+    },
+    currentFoodCard: {
+      backgroundColor: colors.surfaceSubtle,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      marginTop: spacing.sm,
+      marginBottom: spacing.xs,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    currentFoodHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: spacing.xs,
+      marginBottom: 2,
+    },
+    currentFoodLabel: {
+      ...typography.caption,
+      color: colors.textMuted,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    currentFoodQuantity: {
+      ...typography.labelBold,
+      color: colors.primaryDark,
+      fontSize: 14,
+    },
+    currentFoodName: {
+      ...typography.bodyLarge,
+      color: colors.textPrimary,
+      fontWeight: '600',
+    },
+    changeForLabel: {
+      ...typography.caption,
+      color: colors.textMuted,
+      fontWeight: '700',
+      letterSpacing: 0.6,
+      textTransform: 'uppercase',
+      marginTop: spacing.sm,
+      marginBottom: spacing.xs,
+      paddingLeft: spacing.xs,
+    },
+    optionsList: {
+      maxHeight: 380,
+    },
+    optionsContainer: {
+      gap: spacing.sm,
+      paddingBottom: spacing.lg,
+    },
+    optionRow: {
+      minHeight: touchTarget.minHeight,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.surfaceSubtle,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      borderWidth: 1.5,
+      borderColor: 'transparent',
+    },
+    optionRowCurrent: {
+      backgroundColor: colors.primaryLight,
+      borderColor: colors.primary,
+    },
+    optionRowPressed: {
+      opacity: 0.8,
+    },
+    optionInfo: {
+      flex: 1,
+      marginRight: spacing.sm,
+    },
+    optionName: {
+      ...typography.bodyMedium,
+      color: colors.textPrimary,
+      fontWeight: '500',
+    },
+    optionNameCurrent: {
+      color: colors.primaryDark,
+      fontWeight: '700',
+    },
+    fatDeductionHint: {
+      ...typography.caption,
+      color: colors.warningDark,
+      marginTop: 2,
+    },
+    quantityContainer: {
+      alignItems: 'flex-end',
+      flexShrink: 0,
+    },
+    quantityText: {
+      ...typography.labelBold,
+      color: colors.textPrimary,
+      fontSize: 15,
+    },
+    quantityTextCurrent: {
+      color: colors.primaryDark,
+    },
+    currentTag: {
+      ...typography.caption,
+      color: colors.primaryDark,
+      fontWeight: '700',
+      fontSize: 10,
+      marginTop: 2,
+    },
+  });
+

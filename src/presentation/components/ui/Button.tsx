@@ -3,7 +3,7 @@
  * de área táctil mínima de 48 dp (M8 / TASK-M0-003) para su uso en cocina.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -13,7 +13,14 @@ import {
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
-import { borderRadius, colors, spacing, touchTarget, typography } from '@/presentation/theme/tokens';
+import {
+  borderRadius,
+  spacing,
+  touchTarget,
+  typography,
+  useTheme,
+  type ThemeColors,
+} from '@/presentation/theme';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'completed' | 'danger';
 
@@ -40,6 +47,8 @@ export const Button: React.FC<ButtonProps> = ({
   accessibilityLabel,
   testID,
 }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const isInteractive = !disabled && !loading;
 
   return (
@@ -83,67 +92,70 @@ export const Button: React.FC<ButtonProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  base: {
-    minHeight: touchTarget.minHeight,
-    minWidth: touchTarget.minWidth,
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
-    borderRadius: borderRadius.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.99 }],
-  },
-  disabled: {
-    backgroundColor: colors.surfaceSubtle,
-    borderColor: colors.border,
-    opacity: 0.6,
-  },
-  primary: {
-    backgroundColor: colors.primary,
-  },
-  secondary: {
-    backgroundColor: colors.surfaceSubtle,
-  },
-  outline: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: colors.borderStrong,
-  },
-  completed: {
-    backgroundColor: colors.successLight,
-    borderWidth: 1.5,
-    borderColor: colors.success,
-  },
-  danger: {
-    backgroundColor: colors.errorLight,
-    borderWidth: 1,
-    borderColor: colors.error,
-  },
-  textBase: {
-    ...typography.labelBold,
-    textAlign: 'center',
-  },
-  primaryText: {
-    color: colors.textInverse,
-  },
-  secondaryText: {
-    color: colors.textPrimary,
-  },
-  outlineText: {
-    color: colors.textPrimary,
-  },
-  completedText: {
-    color: colors.successDark,
-  },
-  dangerText: {
-    color: colors.error,
-  },
-  disabledText: {
-    color: colors.textMuted,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    base: {
+      minHeight: touchTarget.minHeight,
+      minWidth: touchTarget.minWidth,
+      paddingHorizontal: spacing.xl,
+      paddingVertical: spacing.md,
+      borderRadius: borderRadius.lg,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    pressed: {
+      opacity: 0.85,
+      transform: [{ scale: 0.99 }],
+    },
+    disabled: {
+      backgroundColor: colors.surfaceSubtle,
+      borderColor: colors.border,
+      opacity: 0.6,
+    },
+    primary: {
+      backgroundColor: colors.primary,
+    },
+    secondary: {
+      backgroundColor: colors.surfaceSubtle,
+    },
+    outline: {
+      backgroundColor: 'transparent',
+      borderWidth: 1.5,
+      borderColor: colors.borderStrong,
+    },
+    completed: {
+      backgroundColor: colors.successLight,
+      borderWidth: 1.5,
+      borderColor: colors.success,
+    },
+    danger: {
+      backgroundColor: colors.errorLight,
+      borderWidth: 1,
+      borderColor: colors.error,
+    },
+    textBase: {
+      ...typography.labelBold,
+      textAlign: 'center',
+      flexShrink: 1,
+    },
+    primaryText: {
+      color: colors.textInverse,
+    },
+    secondaryText: {
+      color: colors.textPrimary,
+    },
+    outlineText: {
+      color: colors.textPrimary,
+    },
+    completedText: {
+      color: colors.successDark,
+    },
+    dangerText: {
+      color: colors.error,
+    },
+    disabledText: {
+      color: colors.textMuted,
+    },
+  });
+
