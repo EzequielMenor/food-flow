@@ -121,3 +121,17 @@ El desarrollo se organiza para alcanzar una **versión usable para dogfooding lo
   - Comprobación de funcionamiento 100% offline.
 - **Dependencias:** M4, M6, M7.
 - **Criterio de Paso:** Checklist de aceptación del MVP superada sin errores.
+
+---
+
+## Estado de Verificación M0–M8 (Completado)
+
+- **M0**: Scaffold Expo SDK 57, TypeScript estricto, Router, Jest.
+- **M1**: Motor de raciones con TDD, catálogo canónico y deducciones de grasa.
+- **M2**: Flujo diario "Hoy" con tarjetas de comida y confirmación en 1 toque.
+- **M3**: Persistencia SQLite local-first, migraciones y adaptador `node:sqlite`.
+- **M4**: Modal de sustitución por grupo exacto con recálculo dinámico y pantalla de detalle.
+- **M5**: Pestaña "Plan" con equivalencias, 8 recetas y 6 salsas.
+- **M6**: Pestaña "Compra" con checklist interactiva persistida y regeneración semanal.
+- **M7**: Pestaña "Progreso" con KPIs de adherencia media, días 100% y calendario mensual.
+- **M8**: Pulido ergonómico (48 dp WCAG 2.5.5), smoke check de empaquetado de producción (`npx expo export` limpio para iOS y Android), 124/124 tests verdes, TypeScript estricto y Expo lint en 0.
