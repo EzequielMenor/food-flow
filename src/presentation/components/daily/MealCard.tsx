@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import type { PlannedMeal } from '@/application/dailyFlow';
+import type { FoodItem, PlannedMeal } from '@/application/dailyFlow';
 import { formatItemLine } from '@/application/dailyFlow';
 import { Button } from '@/presentation/components/ui/Button';
 import { borderRadius, colors, spacing, typography } from '@/presentation/theme/tokens';
@@ -15,7 +15,7 @@ export interface MealCardProps {
   readonly meal: PlannedMeal;
   readonly isCompleted: boolean;
   readonly onToggleCompleted: () => void;
-  readonly onOpenSubstitution?: () => void;
+  readonly onOpenSubstitution?: (item: FoodItem) => void;
   readonly testID?: string;
 }
 
@@ -55,11 +55,11 @@ export const MealCard: React.FC<MealCardProps> = ({
       {/* Raciones objetivo y notas clínicas */}
       <View style={styles.metaRow}>
         <Text style={styles.targetSummary}>{meal.targetSummary}</Text>
-        {onOpenSubstitution && (
+        {onOpenSubstitution && meal.items.length > 0 && (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Sustituir ingredientes en ${meal.title}`}
-            onPress={onOpenSubstitution}
+            onPress={() => onOpenSubstitution(meal.items[0]!)}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <Text style={styles.substitutionLink}>Sustituir ›</Text>
@@ -73,7 +73,7 @@ export const MealCard: React.FC<MealCardProps> = ({
         </View>
       )}
 
-      {/* Lista de ingredientes */}
+      {/* Lista de ingredientes con opción de cambio */}
       <View style={styles.itemsList}>
         {meal.items.map((item) => (
           <View key={item.foodId} style={styles.itemRow}>
@@ -84,6 +84,17 @@ export const MealCard: React.FC<MealCardProps> = ({
                 <Text style={styles.substitutionTag}> (Sustituido)</Text>
               )}
             </Text>
+            {onOpenSubstitution && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Sustituir ${item.name}`}
+                onPress={() => onOpenSubstitution(item)}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                style={styles.swapButton}
+              >
+                <Text style={styles.swapButtonText}>Cambiar</Text>
+              </Pressable>
+            )}
           </View>
         ))}
 
@@ -258,5 +269,18 @@ const styles = StyleSheet.create({
   },
   actionContainer: {
     marginTop: spacing.md,
+  },
+  swapButton: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: borderRadius.sm,
+    backgroundColor: colors.surfaceSubtle,
+    marginLeft: spacing.xs,
+    alignSelf: 'center',
+  },
+  swapButtonText: {
+    ...typography.caption,
+    color: colors.training,
+    fontWeight: '600',
   },
 });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   RefreshControl,
@@ -8,9 +8,11 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { parseDateKey } from '@/application/dailyFlow';
+import { parseDateKey, type FoodItem } from '@/application/dailyFlow';
+import type { MomentId } from '@/domain/nutrition/types';
 import { DayTypeSelector } from '@/presentation/components/daily/DayTypeSelector';
 import { MealCard } from '@/presentation/components/daily/MealCard';
+import { SubstitutionModal } from '@/presentation/components/meal/SubstitutionModal';
 import { useDailyFlow } from '@/presentation/hooks/useDailyFlow';
 import { borderRadius, colors, spacing, typography } from '@/presentation/theme/tokens';
 
@@ -43,8 +45,15 @@ export default function TodayScreen() {
     error,
     toggleMeal,
     changeDayType,
+    substitute,
     refresh,
   } = useDailyFlow();
+
+  const [activeSubstitution, setActiveSubstitution] = useState<{
+    readonly item: FoodItem;
+    readonly momentId: MomentId;
+    readonly momentLabel: string;
+  } | null>(null);
 
   const formattedDate = formatDisplayDate(dateKey);
 
@@ -115,10 +124,29 @@ export default function TodayScreen() {
                 meal={meal}
                 isCompleted={Boolean(state.completed[meal.momentId])}
                 onToggleCompleted={() => void toggleMeal(meal.momentId)}
+                onOpenSubstitution={(item) =>
+                  setActiveSubstitution({
+                    item,
+                    momentId: meal.momentId,
+                    momentLabel: meal.label,
+                  })
+                }
               />
             ))}
           </View>
         )}
+
+        <SubstitutionModal
+          visible={activeSubstitution !== null}
+          item={activeSubstitution?.item ?? null}
+          momentLabel={activeSubstitution?.momentLabel}
+          onClose={() => setActiveSubstitution(null)}
+          onSelectAlternative={(sourceFoodId, targetFoodId) => {
+            if (activeSubstitution) {
+              void substitute(activeSubstitution.momentId, sourceFoodId, targetFoodId);
+            }
+          }}
+        />
       </ScrollView>
     </SafeAreaView>
   );

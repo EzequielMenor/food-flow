@@ -70,6 +70,6 @@ describe('MealCard component', () => {
 
     const subBtn = getByRole('button', { name: /Sustituir ingredientes/i });
     fireEvent.press(subBtn);
-    expect(handleOpenSub).toHaveBeenCalledTimes(1);
+    expect(handleOpenSub).toHaveBeenCalledWith(meal.items[0]);
   });
 });

@@ -51,4 +51,21 @@ describe('TodayScreen (app/(tabs)/index.tsx)', () => {
       expect(getByText(/1 de \d+ comidas/)).toBeTruthy();
     });
   });
+
+  it('allows opening substitution modal and interacting from TodayScreen', async () => {
+    const { getAllByRole, getByText, getByRole } = render(<TodayScreen />);
+
+    await waitFor(() => {
+      expect(getAllByRole('button', { name: /^Sustituir /i }).length).toBeGreaterThan(0);
+    });
+
+    const firstSwapButton = getAllByRole('button', { name: /^Sustituir /i })[0]!;
+    fireEvent.press(firstSwapButton);
+
+    await waitFor(() => {
+      expect(getByText('Sustituir alimento')).toBeTruthy();
+    });
+
+    fireEvent.press(getByRole('button', { name: 'Cerrar' }));
+  });
 });
