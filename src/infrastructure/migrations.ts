@@ -3,12 +3,12 @@
  * en transacción: o aplica la versión completa o no aplica nada.
  */
 
-import type { SQLiteDatabase } from 'expo-sqlite';
+import type { DbLike } from './database';
 import { CURRENT_SCHEMA_VERSION, SCHEMA_V1 } from './schema';
 
 interface Migration {
   readonly version: number;
-  up(db: SQLiteDatabase): Promise<void>;
+  up(db: DbLike): Promise<void>;
 }
 
 const MIGRATIONS: readonly Migration[] = [
@@ -20,7 +20,7 @@ const MIGRATIONS: readonly Migration[] = [
   },
 ];
 
-export async function runMigrations(db: SQLiteDatabase): Promise<void> {
+export async function runMigrations(db: DbLike): Promise<void> {
   const row = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
   let current = row?.user_version ?? 0;
   if (current >= CURRENT_SCHEMA_VERSION) {

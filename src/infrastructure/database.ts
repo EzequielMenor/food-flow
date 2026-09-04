@@ -4,7 +4,6 @@
  * consumen. En tests se inyecta un adaptador sobre node:sqlite sin tocar UI.
  */
 
-import * as SQLite from 'expo-sqlite';
 import { runMigrations } from './migrations';
 
 export const DATABASE_NAME = 'food-flow.db';
@@ -18,14 +17,23 @@ export interface DbLike {
 }
 
 let dbPromise: Promise<DbLike> | null = null;
+let providerOverride: (() => Promise<DbLike>) | null = null;
+
+export function setDatabaseProvider(provider: (() => Promise<DbLike>) | null): void {
+  providerOverride = provider;
+  dbPromise = null;
+}
 
 export function getDatabase(): Promise<DbLike> {
+  if (providerOverride !== null) {
+    return providerOverride();
+  }
   if (dbPromise === null) {
     dbPromise = (async () => {
-      const db: SQLite.SQLiteDatabase = await SQLite.openDatabaseAsync(DATABASE_NAME);
+      const SQLite = await import('expo-sqlite');
+      const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
       await db.execAsync('PRAGMA journal_mode = WAL;');
       await db.execAsync('PRAGMA foreign_keys = ON;');
-      await runMigrations(db);
       const wrapper: DbLike = {
         execAsync: async (sql: string) => db.execAsync(sql),
         runAsync: async (sql: string, params?: unknown) =>
@@ -36,6 +44,7 @@ export function getDatabase(): Promise<DbLike> {
           db.getFirstAsync<T>(sql, (params ?? []) as never),
         withTransactionAsync: async (task: () => Promise<void>) => db.withTransactionAsync(task),
       };
+      await runMigrations(wrapper);
       return wrapper;
     })().catch((error: unknown) => {
       dbPromise = null;
