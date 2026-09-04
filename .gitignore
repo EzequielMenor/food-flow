@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.expo/
+.expo-dev/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+ios/
+android/
+.DS_Store
+*.log
